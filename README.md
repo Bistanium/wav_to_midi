@@ -1,0 +1,2 @@
+# wav2midinFourier
+フーリエ変換を使ってwavファイルをmidiファイルに変換する
