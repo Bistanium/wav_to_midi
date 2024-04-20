@@ -1,2 +1,2 @@
-# wav2midinFourier
-フーリエ変換を使ってwavファイルをmidiファイルに変換する
+# WAV to MIDI using Fourier transform
+フーリエ変換を使って16bitのwavファイルをmidiファイルに変換する
