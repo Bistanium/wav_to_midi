@@ -6,7 +6,7 @@
 ■ファイル説明
   "main.py" → 変換プログラム
   "start.bat" → pythonを実行するためのもの(Pathが通っていること前提)
- "EQ filter.png" → AudacityでEQフィルター使用時の参考になるかもしれない画像。
+  "EQ filter.png" → AudacityでEQフィルター使用時の参考になるかもしれない画像。
   "Sine Wave Soundfont.sf2" → 主にOmniMIDIなどで使うサウンドフォント。標準のMidiの音を正弦波に変えてくれる。
   "使い方.txt" → 今見ているテキストファイル。
   "READNE.md" → Githubでの説明用。
@@ -18,7 +18,7 @@
 ■システム要件(動作確認が取れているもの)
 　OS：  Windows11
 　CPU:  余程古くなければ時間はかかっても動くはず
-　RAM:  2GBぐらい使うので、空きが8GBあれば良い(ただし音声データの長さによって変動)
+　RAM:  2~3GBぐらい使うので、空きが8GBあれば良い(ただし音声データの長さによって変動)
 
 ■アンインストール
 　・このフォルダごとゴミ箱に捨てればOKです。
@@ -35,7 +35,7 @@
   pip install numpy
 
   midoをインストール
-  pip install mido python-rtmidi
+  pip install mido
 
 ■変換方法
 　以下の手順を実行してください。
