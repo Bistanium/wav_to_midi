@@ -9,7 +9,7 @@ def data2midi(F, fs, N):
     sec = N / fs
     loopcount, beforenote, maxvolume = 0, 0, 0
     for i in range(1, int(N/2), 1):
-        if abs(F.imag[i]/N*2) > 32: #音量の閾値
+        if abs(F.imag[i]/N*2) > 8: #音量の閾値
             if 66 < i/sec and i/sec < 11175	: #midiの範囲に収める
                 #ノート番号計算
                 log = math.log10(i/sec/440) #i/secが周波数
@@ -72,7 +72,7 @@ def read_wav(file_path):
     if wf.getsampwidth() == 2:
         data = np.frombuffer(buf, dtype='int16')
     else:
-        sys.exit()
+        data = 0
 
     # ステレオの場合，チャンネルを分離
     if wf.getnchannels()==2:
