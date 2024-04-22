@@ -139,16 +139,10 @@ if __name__ == '__main__':
     data_ls = audio_split(data_l, wi, win_size)
     del data_l
 
-    # FFT
-    F_ls = []
-    for dl in data_ls:
-        F_ls.append(np.fft.fft(dl))
-    del data_ls
-
-    # midi化
-    for F_l in F_ls:
-        data2midi(F_l, wi["fs"], len(F_l.imag))
-    del F_ls
+    # FFT&midi化
+    for i in range(0, int(len(data_ls))):
+        f_dl = np.fft.fft(data_ls[i])
+        data2midi(f_dl, wi["fs"], len(f_dl.imag))
 
     out_file = "test_wav_midi.mid"
     mid.save(out_file)
