@@ -52,8 +52,8 @@ def data2midi(F, fs, N):
             elif volume > maxvolume:
                 maxvolume = volume
 
-    for j in range(35, 126):
-        if j == 35:
+    for j in range(36, 125):
+        if j == 36:
             soundtime = 240*sec
             track.append(Message('note_off', note=j, time=int(round(soundtime, 0))))
         else:
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     # ウィンドウサイズ
     win_size = 1024 * 8
 
-    #テンポ
+    #テンポ(Tom's MIDI Playerの場合は"483.997")
     track.append(MetaMessage('set_tempo', tempo=mido.bpm2tempo(484.497)))
 
     # データ分割
