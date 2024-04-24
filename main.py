@@ -126,7 +126,7 @@ if __name__ == '__main__':
     # ウィンドウサイズ
     win_size = 1024 * 8
 
-    #テンポ(Tom's MIDI Playerの場合は"483.997")
+    #テンポ(Tom's MIDI Playerの場合は"483.497")
     track.append(MetaMessage('set_tempo', tempo=mido.bpm2tempo(484.497)))
 
     # データ分割
