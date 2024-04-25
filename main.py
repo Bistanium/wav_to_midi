@@ -9,7 +9,7 @@ def data2midi(F, fs, N):
     sec = N / fs
     loopcount, beforenote, maxvolume = 0, 0, 0
     for i in range(1, int(N/2), 1):
-        if 66 < i/sec and i/sec < 11175	: #midiの範囲に収める
+        if 64 < i/sec and i/sec < 11175: #midiの範囲に収める
             #ノート番号計算 i/secが周波数
             midinote = round(69 + math.log10(i/sec/440)/0.025085832972, 1)
             #音量計算
@@ -52,7 +52,7 @@ def data2midi(F, fs, N):
             elif volume > maxvolume:
                 maxvolume = volume
 
-    for j in range(36, 125):
+    for j in range(36, 126):
         if j == 36:
             soundtime = 240*sec
             track.append(Message('note_off', note=j, time=int(round(soundtime, 0))))
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     # ウィンドウサイズ
     win_size = 1024 * 8
 
-    #テンポ(Tom's MIDI Playerの場合は"483.497")
+    #テンポ(Tom's MIDI Playerの場合は483.497)
     track.append(MetaMessage('set_tempo', tempo=mido.bpm2tempo(484.497)))
 
     # データ分割
