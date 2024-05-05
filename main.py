@@ -1,75 +1,63 @@
 import mido
 from mido import Message, MidiFile, MidiTrack, MetaMessage
-import math
-import wave
+from math import log10
+from wave import open
 import numpy as np
+from numpy.fft import fft
+from scipy.signal import firwin, lfilter
 
-#midi化関数
-def data2midi(F, fs, N):
+# midi化関数
+def data2midi(F: np.ndarray, fs: int, N: int):
+    half_n = N // 2
     sec = N / fs
-    loopcount, beforenote, maxvolume = 0, 0, 0
-    for i in range(1, int(N/2), 1):
-        if 64 < i/sec and i/sec < 11175: #midiの範囲に収める
-            #ノート番号計算 i/secが周波数
-            midinote = round(69 + math.log10(i/sec/440)/0.025085832972, 1)
-            #音量計算
-            volume = (abs(F.imag[i]/N*2) ** (1.8/3))*1.25
-            #音量調整
+    beforenote, maxvolume = 0, 0
+    for i in range(1, half_n):
+        i_sec = i/sec # i/secが周波数
+        if 64 < i_sec < 11175: # midiの範囲に収める
+            # ノート番号計算
+            midinote = 69 + log10(i_sec/440)/0.025085832972
+            # 音量計算
+            volume = (abs(F.imag[i]/N*2) ** (1.8/3)) * 1.125
+            # 音量調整
             if midinote < 56:
                 volume = volume * 0.8
                 if midinote < 48:
                     volume = volume * 0.7
                     if midinote < 41:
                         volume = volume * 0.6
-
             if midinote > 107:
                 volume = volume * 0.8
                 if midinote > 112:
                     volume = volume * 0.7
                     if midinote > 118:
                         volume = volume * 0.6
-
             if volume > 127: volume = 127
 
-            loopcount += 1
-            if not beforenote == int(round(midinote, 0)):
-                syosu, seisu = math.modf(beforenote) #整数と小数部分の分離
-                syosu = round(syosu, 1)
-
-                if syosu == 0.0:
-                    track.append(Message('note_on', note=beforenote, velocity=int(round(maxvolume*1, 0)), time=00))
-                elif syosu == 0.9 or syosu == 0.8 or syosu == 0.1 or syosu == 0.2:
-                    track.append(Message('note_on', note=beforenote, velocity=int(round(maxvolume*0.9, 0)), time=00))
-                elif syosu == 0.7 or syosu == 0.3:
-                    track.append(Message('note_on', note=beforenote, velocity=int(round(maxvolume*0.8, 0)), time=00))
-                elif syosu == 0.6 or syosu == 0.4:
-                    track.append(Message('note_on', note=beforenote, velocity=int(round(maxvolume*0.7, 0)), time=00))
-                elif syosu == 0.5:
-                    track.append(Message('note_on', note=beforenote, velocity=int(round(maxvolume*0.6, 0)), time=00))
-
-                beforenote, maxvolume = int(round(midinote, 0)), volume
-                loopcount = 0
-            elif volume > maxvolume:
+            rounded_midinote = int(round(midinote, 0))
+            if not beforenote == rounded_midinote: # 音階が変わったら前の音階をmidiに打ち込む
+                ronded_volume = int(round(maxvolume, 0))
+                if not ronded_volume == 0:
+                    track.append(Message('note_on', note=beforenote, velocity=ronded_volume, time=00))
+                beforenote, maxvolume = rounded_midinote, volume
+            elif volume > maxvolume: #同じ音階なら音量を今までの最大値にする
                 maxvolume = volume
 
-    for j in range(36, 126):
-        if j == 36:
-            soundtime = 240*sec
-            track.append(Message('note_off', note=j, time=int(round(soundtime, 0))))
-        else:
-            track.append(Message('note_off', note=j, time=0))
+    lowestnote, highestnote = 36, 126
+    for j in range(lowestnote, highestnote):
+        soundtime = int(round(120*sec, 0)) if j == lowestnote else 0
+        track.append(Message('note_off', note=j, time=soundtime))
 
 
 # Wave読み込み
-def read_wav(file_path):
-    wf = wave.open(file_path, "rb")
-    buf = wf.readframes(-1) # 全部読み込む
+def read_wav(file_path: str):
+    wf = open(file_path, "rb")
 
+    buf = wf.readframes(-1) # 全部読み込む
     # 16bitごとに10進数化
     if wf.getsampwidth() == 2:
         data = np.frombuffer(buf, dtype='int16')
     else:
-        data = 0
+        data = np.zeros(len(buf), dtype=np.complex128)
 
     # ステレオの場合，チャンネルを分離
     if wf.getnchannels()==2:
@@ -79,13 +67,13 @@ def read_wav(file_path):
         data_l = data
         data_r = data
     wf.close()
-    return data_l,data_r
+    return data_l, data_r
 
 
 # wavファイルの情報を取得
-def info_wav(file_path):
+def info_wav(file_path: str):
     ret = {}
-    wf = wave.open(file_path, "rb")
+    wf = open(file_path, "rb")
     ret["ch"] = wf.getnchannels()
     ret["byte"] = wf.getsampwidth()
     ret["fs"] = wf.getframerate()
@@ -96,26 +84,41 @@ def info_wav(file_path):
 
 
 # データ分割
-def audio_split(data_l, wi, win_size):
-    ret_ls = []
+def audio_split(data: np.ndarray, win_size: int):
+    split_data = []
     win = np.hanning(win_size)
-    for i in range(0, wi["N"] ,int(win_size)):
-        endi = i + win_size
-        if endi < wi["N"]:
-            ret_ls.append(data_l[i:endi] * win)
-        else:
-            win = np.hanning(len(data_l[i:-1]))
-            ret_ls.append(data_l[i:-1] * win)
-    return ret_ls
+    len_data = len(data)
+    for i in range(0, len_data, win_size//2):
+        endi = min(i + win_size, len_data)
+        split_data.append(data[i:endi] * win[:endi-i])
+    return split_data
+
+
+def downsampling(conversion_rate: int, data: np.ndarray, fs: int): #args(downsamp,data,nowsamp) return(data,downsamp)
+    # FIRフィルタ
+    nyqF = fs/2                       # 変換前のナイキスト周波数
+    cF = (conversion_rate/2-500)/nyqF # カットオフ周波数
+    taps = 511                        # フィルタ係数
+    b = firwin(taps, cF)   # LPFを用意
+    # フィルタリング
+    data = lfilter(b, 1, data)
+
+    # 間引き処理
+    downlate = np.arange(0, len(data)-1, fs/conversion_rate)
+    rounded_indices = np.round(downlate).astype(int)
+    downed_data = data[rounded_indices]
+    return downed_data
 
 
 if __name__ == '__main__':
-    
+
     # midi定義
     mid = MidiFile()
     track = MidiTrack()
     mid.tracks.append(track)
- 
+    # テンポ
+    track.append(MetaMessage('set_tempo', tempo=mido.bpm2tempo(480)))
+
     # Wav読み込み
     data_l,data_r = read_wav("test.wav")
     del data_r
@@ -123,20 +126,23 @@ if __name__ == '__main__':
     # Wavの情報取得
     wi = info_wav("test.wav")
 
-    # ウィンドウサイズ
-    win_size = 1024 * 8
-
-    #テンポ(Tom's MIDI Playerの場合は483.497)
-    track.append(MetaMessage('set_tempo', tempo=mido.bpm2tempo(484.497)))
-
-    # データ分割
-    data_ls = audio_split(data_l, wi, win_size)
+    # ダウンサンプリング
+    new_fs = 40960
+    downed_data = downsampling(new_fs, data_l, wi["fs"])
     del data_l
 
-    # FFT&midi化
-    for i in range(0, int(len(data_ls))):
-        f_dl = np.fft.fft(data_ls[i])
-        data2midi(f_dl, wi["fs"], len(f_dl.imag))
+    # ウィンドウサイズ
+    win_size = 1024 * 16
 
-    out_file = "test_wav_midi.mid"
+    # データ分割
+    splited_data = audio_split(downed_data, win_size)
+    del downed_data
+
+    # FFT&midi化
+    len_splited_data = len(splited_data)
+    for i in range(0, len_splited_data):
+        ffted_data = fft(splited_data[i])
+        data2midi(ffted_data, new_fs, len(ffted_data.imag))
+
+    out_file = "test_wav.mid"
     mid.save(out_file)
