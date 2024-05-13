@@ -35,9 +35,9 @@ def data2midi(F: np.ndarray, fs: int, N: int):
 
             rounded_midinote = int(round(midinote, 0))
             if not beforenote == rounded_midinote: # 音階が変わったら前の音階をmidiに打ち込む
-                ronded_volume = int(round(maxvolume, 0))
-                if not ronded_volume == 0:
-                    track.append(Message('note_on', note=beforenote, velocity=ronded_volume, time=00))
+                rounded_volume = int(round(maxvolume, 0))
+                if not rounded_volume == 0:
+                    track.append(Message('note_on', note=beforenote, velocity=rounded_volume, time=00))
                 beforenote, maxvolume = rounded_midinote, volume
             elif volume > maxvolume: #同じ音階なら音量を今までの最大値にする
                 maxvolume = volume
@@ -60,7 +60,7 @@ def read_wav(file_path: str):
         data = np.zeros(len(buf), dtype=np.complex128)
 
     # ステレオの場合，チャンネルを分離
-    if wf.getnchannels()==2:
+    if wf.getnchannels() == 2:
         data_l = data[::2]
         data_r = data[1::2]
     else:
@@ -94,12 +94,12 @@ def audio_split(data: np.ndarray, win_size: int):
     return split_data
 
 
-def downsampling(conversion_rate: int, data: np.ndarray, fs: int): #args(downsamp,data,nowsamp) return(data,downsamp)
+def downsampling(conversion_rate: int, data: np.ndarray, fs: int):
     # FIRフィルタ
     nyqF = fs/2                       # 変換前のナイキスト周波数
     cF = (conversion_rate/2-500)/nyqF # カットオフ周波数
     taps = 511                        # フィルタ係数
-    b = firwin(taps, cF)   # LPFを用意
+    b = firwin(taps, cF)   # LPF
     # フィルタリング
     data = lfilter(b, 1, data)
 
