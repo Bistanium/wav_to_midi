@@ -1,4 +1,4 @@
-# WAV to MIDI using Fourier transform!
+# [WAV to MIDI using Fourier transform](https://github.com/Bistanium/wav_to_midi)
 フーリエ変換を使って16bitのwavファイルをmidiファイルに変換する
 (Convert 16-bit wav file to midi file using Fourier transform)
 
