@@ -85,13 +85,17 @@ def info_wav(file_path: str):
 
 # データ分割
 def audio_split(data: np.ndarray, win_size: int):
-    split_data = []
-    win = np.hanning(win_size)
+    splited_data = []
     len_data = len(data)
+    win = np.hanning(win_size)
     for i in range(0, len_data, win_size//2):
-        endi = min(i + win_size, len_data)
-        split_data.append(data[i:endi] * win[:endi-i])
-    return split_data
+        endi = i + win_size
+        if endi < len_data:
+            splited_data.append(data[i:endi] * win)
+        else:
+            win = np.hanning(len(data[i:-1]))
+            splited_data.append(data[i:-1] * win)
+    return splited_data
 
 
 def downsampling(conversion_rate: int, data: np.ndarray, fs: int):
