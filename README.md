@@ -1,5 +1,8 @@
 # WAV to MIDI using Fourier transform
-[https://github.com/Bistanium/wav_to_midi](https://github.com/Bistanium/wav_to_midi)
+
+[ピッチベンド有り(With pitch bend)](https://github.com/Bistanium/wav_to_midi_pitch_bend)
+
+[ピッチベンド無し(No pitch bend)](https://github.com/Bistanium/wav_to_midi)
 
 フーリエ変換を使って16bitのwavファイルをmidiファイルに変換する
 (Convert 16-bit wav file to midi file using Fourier transform)
