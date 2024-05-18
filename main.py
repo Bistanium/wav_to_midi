@@ -26,7 +26,7 @@ def data2midi(F: np.ndarray, fs: int, N: int):
                 if not rounded_volume == 0:
                     track.append(Message('note_on', note=beforenote, velocity=rounded_volume, time=00))
                 beforenote, maxvolume = rounded_midinote, volume
-            elif volume > maxvolume: #同じ音階なら音量を今までの最大値にする
+            elif volume > maxvolume: # 同じ音階なら音量を今までの最大値にする
                 maxvolume = volume
 
     lowestnote, highestnote = 36, 126
@@ -118,8 +118,12 @@ if __name__ == '__main__':
     wi = info_wav("test.wav")
 
     # ダウンサンプリング
-    new_fs = 40960
-    downed_data = downsampling(new_fs, data_l, wi["fs"])
+    if wi["fs"] > 40960:
+        new_fs = 40960
+        downed_data = downsampling(new_fs, data_l, wi["fs"])
+    else:
+        new_fs = wi["fs"]
+        downed_data = data_l
     del data_l
 
     # ウィンドウサイズ
