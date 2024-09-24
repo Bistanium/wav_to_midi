@@ -1,13 +1,12 @@
-# WAV to MIDI using Fourier transform
+# [Without Pitch Bend] WAV to MIDI converter in Python
 
-[ピッチベンド有り(With pitch bend)](https://github.com/Bistanium/wav_to_midi_pitch_bend)
+[ピッチベンド有り(開発中), With pitch bend (in development)](https://github.com/Bistanium/wav_to_midi_pitch_bend)
 
-[ピッチベンド無し(No pitch bend)](https://github.com/Bistanium/wav_to_midi)
+フーリエ変換とピッチベンドを使ってWAVからMIDIへ変換
+(WAV to MIDI conversion using Fourier transform and pitch bend)
 
-フーリエ変換を使って16bitのwavファイルをmidiファイルに変換する
-(Convert 16-bit wav file to midi file using Fourier transform)
+ただし、Audacityが必要です
+(Note: Audacity is required)
 
-ただし、Audacityが必要です(Note: Audacity is required)
-
-"使い方.txt"をよく読んでから使ってください
-(Please read the "使い方.txt" carefully before use)
+使い方.txtをよく読んでから使ってください
+(Please read the 使い方.txt carefully before use)
