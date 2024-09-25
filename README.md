@@ -2,8 +2,8 @@
 
 [ピッチベンド有り(開発中), With pitch bend (in development)](https://github.com/Bistanium/wav_to_midi_pitch_bend)
 
-フーリエ変換とピッチベンドを使ってWAVからMIDIへ変換
-(WAV to MIDI conversion using Fourier transform and pitch bend)
+フーリエ変換を使ってWAVからMIDIへ変換
+(WAV to MIDI conversion using Fourier transform)
 
 ただし、Audacityが必要です
 (Note: Audacity is required)
